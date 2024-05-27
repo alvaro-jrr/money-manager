@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import { isErrorResponse } from "@/models/error-response";
 import { Session } from "@/models/session";
 import type { UserCredentialsType } from "@/models/user-credentials";
@@ -26,6 +28,8 @@ export const authApi = {
 		const json = await response?.json();
 		const parsed = createApiResponseSchema(Session).safeParse(json);
 
+		console.log(parsed.error);
+
 		if (parsed.success && !isErrorResponse(parsed.data)) {
 			sessionManager.set(parsed.data.data);
 		}
@@ -52,6 +56,22 @@ export const authApi = {
 		if (parsed.success && !isErrorResponse(parsed.data)) {
 			sessionManager.set(parsed.data.data);
 		}
+
+		return parsed.success ? parsed.data : null;
+	},
+	/**
+	 * Checks wether the user is authenticated.
+	 *
+	 * @returns A promise that resolves to a session if the status check is successful.
+	 * Otherwise an error response or null.
+	 */
+	async checkStatus() {
+		const response = await client("auth/check-status", {
+			method: "GET",
+		});
+
+		const json = await response?.json();
+		const parsed = createApiResponseSchema(z.null()).safeParse(json);
 
 		return parsed.success ? parsed.data : null;
 	},

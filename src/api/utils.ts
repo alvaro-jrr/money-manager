@@ -12,10 +12,7 @@ export function createApiResponseSchema<TData extends z.ZodTypeAny>(
 	schema: TData,
 ) {
 	return z.union([
-		z.object({
-			status: z.number(),
-			data: schema,
-		}),
+		z.object({ status: z.number(), data: schema }),
 		ErrorResponse,
 	]);
 }
